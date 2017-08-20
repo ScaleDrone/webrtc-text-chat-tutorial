@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script type='text/javascript' src='https://cdn.scaledrone.com/scaledrone.min.js'></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 16px;
+      height: 100vh;
+    }
+    .content {
+      box-shadow: rgba(156, 172, 172, 0.2) 0px 2px 2px, rgba(156, 172, 172, 0.2) 0px 4px 4px, rgba(156, 172, 172, 0.2) 0px 8px 8px, rgba(156, 172, 172, 0.2) 0px 16px 16px, rgba(156, 172, 172, 0.2) 0px 32px 32px, rgba(156, 172, 172, 0.2) 0px 64px 64px;
+      border-radius: 3px;
+      height: 100vh;
+      max-height: 600px;
+      width: 100vw;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+    }
+    .header {
+      line-height: 76px;
+      padding: 0 30px;
+      border-bottom: 1px solid rgba(156, 172, 172, 0.2);
+    }
+    .header__emoji {
+      margin-right: 20px;
+    }
+    .messages {
+      flex-grow: 1;
+      padding: 0 30px;
+    }
+    .message {
+      display: flex;
+      flex-direction: column;
+    }
+    .message--mine {
+      align-items: flex-end;
+    }
+    .message__name {
+      padding: 10px 0;
+    }
+    .message__bubble {
+      padding: 20px;
+      border-radius: 3px;
+    }
+    .message--theirs .message__bubble {
+      background: #6363bf;
+      color: white;
+    }
+    .message--mine .message__bubble {
+      background: rgba(156, 172, 172, 0.2);
+    }
+    .footer {
+      line-height: 76px;
+      border-top: 1px solid rgba(156, 172, 172, 0.2);
+      display: flex;
+    }
+    input {
+      height: 76px;
+      border: none;
+      flex-grow: 1;
+      padding: 0 30px;
+      font-size: 16px;
+    }
+    button {
+      border: none;
+      background: transparent;
+      padding: 0 30px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="content">
+    <div class="header">
+      <span class="header__emoji">🐵</span>
+      <span class="header__text">Hello Serge!</span>
+    </div>
+    <div class="messages">
+      <div class="message message--theirs">
+        <div class="message__name">🐵 Serge</div>
+        <div class="message__bubble">How long will I have to wait for this sofa?</div>
+      </div>
+      <div class="message message--mine">
+        <div class="message__name">🐵 Serge</div>
+        <div class="message__bubble">How long will I have to wait for this sofa?</div>
+      </div>
+    </div>
+    <div class="footer">
+      <input type="text" placeholder="Your message..">
+      <button type="submit">Send</button>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
