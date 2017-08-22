@@ -10,8 +10,9 @@ const configuration = {
   }]
 };
 let room;
-let localConnection;
-let remoteConnection;
+let pc;
+let dataChannel;
+window.dataChannel = dataChannel;
 
 drone.on('open', error => {
   if (error) {
@@ -43,69 +44,72 @@ function sendSignalingMessage(message) {
 }
 
 function startWebRTC(isOfferer) {
-  localConnection = new RTCPeerConnection(configuration);
+  pc = new RTCPeerConnection(configuration);
 
   // 'onicecandidate' notifies us whenever an ICE agent needs to deliver a
   // message to the other peer through the signaling server
-  localConnection.onicecandidate = event => {
+  pc.onicecandidate = event => {
     if (event.candidate) {
       sendSignalingMessage({'candidate': event.candidate});
     }
   };
 
-  // If user is offerer let the 'negotiationneeded' event create the offer
+
   if (isOfferer) {
-    localConnection.onnegotiationneeded = () => {
-      localConnection.createOffer(localDescCreated, error => console.error(error));
+    // If user is offerer let them create a negotiation offer and set up the data channel
+    pc.onnegotiationneeded = () => {
+      pc.createOffer(localDescCreated, error => console.error(error));
+    }
+    dataChannel = pc.createDataChannel('chat');
+    setupDataChannel();
+  } else {
+    // If user is not the offerer let wait for a data channel
+    pc.ondatachannel = event => {
+      dataChannel = event.channel;
+      setupDataChannel();
     }
   }
 
-  const localToRemoteChannel = localConnection.createDataChannel('localToRemote');
-  localToRemoteChannel.onopen = function() {
-    console.log('OPEN', arguments);
-  }
-  localToRemoteChannel.onclose = function() {
-    console.log('CLOSE', arguments);
-  }
-
-  remoteConnection = new RTCPeerConnection(configuration);
-  remoteConnection.ondatachannel = event => {
-    const remoteToLocalChannel = event.channel;
-    remoteToLocalChannel.onmessage = handleReceiveMessage;
-    remoteToLocalChannel.onopen = function() {
-      console.log('OPEN REMOTE', arguments);
-    };
-    remoteToLocalChannel.onclose = function() {
-      console.log('CLOSE REMOTE', arguments);
-    };
-  };
-
   // Listen to signaling data from Scaledrone
   room.on('data', (message, client) => {
-    console.log('CLIENT', client);
     // Message was sent by us
     if (client.id === drone.clientId) {
       return;
     }
     if (message.sdp) {
       // This is called after receiving an offer or answer from another peer
-      localConnection.setRemoteDescription(new RTCSessionDescription(message.sdp), () => {
+      pc.setRemoteDescription(new RTCSessionDescription(message.sdp), () => {
         // When receiving an offer lets answer it
-        if (localConnection.remoteDescription.type === 'offer') {
-          localConnection.createAnswer(localDescCreated, error => console.error(error));
+        if (pc.remoteDescription.type === 'offer') {
+          console.log('Answering offer');
+          pc.createAnswer(localDescCreated, error => console.error(error));
         }
       }, error => console.error(error));
     } else if (message.candidate) {
       // Add the new ICE candidate to our connections remote description
-      localConnection.addIceCandidate(new RTCIceCandidate(message.candidate));
+      pc.addIceCandidate(new RTCIceCandidate(message.candidate));
     }
   });
 }
 
 function localDescCreated(desc) {
-  localConnection.setLocalDescription(
+  pc.setLocalDescription(
     desc,
-    () => sendSignalingMessage({'sdp': localConnection.localDescription}),
+    () => sendSignalingMessage({'sdp': pc.localDescription}),
     error => console.error(error)
   );
+}
+
+// Hook up data channel event handlers
+function setupDataChannel() {
+  dataChannel.onopen = function() {
+    console.log('Data channel is open', arguments);
+    dataChannel.send("Hey you!");
+  }
+  dataChannel.onclose = function() {
+    console.log('Data channel is closed', arguments);
+  }
+  dataChannel.onmessage = function() {
+    console.log('MESSAGE', arguments);
+  }
 }

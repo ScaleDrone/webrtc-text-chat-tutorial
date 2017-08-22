@@ -1,1 +1,1 @@
-<h1>Video chat App with WebRTC</h1>
+<h1>WebRTC chat tutorial</h1>
