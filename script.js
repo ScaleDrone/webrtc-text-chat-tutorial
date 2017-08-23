@@ -102,14 +102,27 @@ function localDescCreated(desc) {
 
 // Hook up data channel event handlers
 function setupDataChannel() {
+  console.log('>', dataChannel.readyState);
   dataChannel.onopen = function() {
     console.log('Data channel is open', arguments);
-    dataChannel.send("Hey you!");
+    document.body.style.opacity = 1;
+    dataChannel.send(JSON.stringify({foo: 'bar', content: 'test'}))
   }
   dataChannel.onclose = function() {
     console.log('Data channel is closed', arguments);
+    document.body.style.opacity = 0.2;
   }
-  dataChannel.onmessage = function() {
-    console.log('MESSAGE', arguments);
+  dataChannel.onmessage = function(event) {
+    console.log(arguments);
+    console.log('Received message from data channel', event.data);
+    insertMessageToDOM(JSON.parse(event.data));
   }
+}
+
+function insertMessageToDOM(options) {
+  const template = document.querySelector('template[data-template="message"]');
+  template.content.querySelector('.message__name').innerText = options.emoji + ' ' + options.name;
+  template.content.querySelector('.message__bubble').innerText = options.content;
+  const clone = document.importNode(template.content, true);
+  document.querySelector('.messages').appendChild(clone);
 }

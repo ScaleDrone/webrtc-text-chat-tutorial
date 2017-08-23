@@ -34,7 +34,8 @@
     }
     .messages {
       flex-grow: 1;
-      padding: 0 30px;
+      padding: 20px 30px;
+      overflow: auto;
     }
     .message {
       display: flex;
@@ -61,6 +62,7 @@
       line-height: 76px;
       border-top: 1px solid rgba(156, 172, 172, 0.2);
       display: flex;
+      flex-shrink: 0;
     }
     input {
       height: 76px;
@@ -99,6 +101,15 @@
       <button type="submit">Send</button>
     </div>
   </div>
+
+  <template data-template="message">
+    <div class="message message--theirs">
+      <div class="message__name"></div>
+      <div class="message__bubble"></div>
+    </div>
+  </template>
+
   <script src="script.js"></script>
+
 </body>
 </html>
