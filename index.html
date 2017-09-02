@@ -24,14 +24,6 @@
       display: flex;
       flex-direction: column;
     }
-    .header {
-      line-height: 76px;
-      padding: 0 30px;
-      border-bottom: 1px solid rgba(156, 172, 172, 0.2);
-    }
-    .header__emoji {
-      margin-right: 20px;
-    }
     .messages {
       flex-grow: 1;
       padding: 20px 30px;
@@ -43,6 +35,9 @@
     }
     .message--mine {
       align-items: flex-end;
+    }
+    .message--theirs {
+      align-items: flex-start;
     }
     .message__name {
       padding: 10px 0;
@@ -70,6 +65,7 @@
       flex-grow: 1;
       padding: 0 30px;
       font-size: 16px;
+      background: transparent;
     }
     button {
       border: none;
@@ -82,28 +78,17 @@
 </head>
 <body>
   <div class="content">
-    <div class="header">
-      <span class="header__emoji">🐵</span>
-      <span class="header__text">Hello Serge!</span>
-    </div>
     <div class="messages">
-      <div class="message message--theirs">
-        <div class="message__name">🐵 Serge</div>
-        <div class="message__bubble">How long will I have to wait for this sofa?</div>
-      </div>
-      <div class="message message--mine">
-        <div class="message__name">🐵 Serge</div>
-        <div class="message__bubble">How long will I have to wait for this sofa?</div>
-      </div>
+
     </div>
-    <div class="footer">
+    <form class="footer" onsubmit="return false;">
       <input type="text" placeholder="Your message..">
       <button type="submit">Send</button>
-    </div>
+    </form>
   </div>
 
   <template data-template="message">
-    <div class="message message--theirs">
+    <div class="message">
       <div class="message__name"></div>
       <div class="message__bubble"></div>
     </div>
