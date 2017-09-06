@@ -12,32 +12,34 @@ function randomEmoji() {
 const emoji = randomEmoji();
 const name = Math.round(Math.random() * 100) + ''; //prompt("What's your name?");
 
-// Generate random room name if needed
+// Generate random chat hash if needed
 if (!location.hash) {
   location.hash = Math.floor(Math.random() * 0xFFFFFF).toString(16);
 }
-const roomHash = location.hash.substring(1);
+const chatHash = location.hash.substring(1);
 
 // TODO: Replace with your own channel ID
 const drone = new ScaleDrone('63o6Zfoz6yeAcJDG');
-// Room name needs to be prefixed with 'observable-'
-const roomName = 'observable-' + roomHash;
+// Scaledrone room name needs to be prefixed with 'observable-'
+const roomName = 'observable-' + chatHash;
+// Scaledrone room used for signaling
+let room;
+
 const configuration = {
   iceServers: [{
     url: 'stun:stun.l.google.com:19302'
   }]
 };
-// Scaledrone room used for signaling
-let room;
+// RTCPeerConnection
 let pc;
+// RTCDataChannel
 let dataChannel;
 
+// Wait for Scaledrone signalling server to connect
 drone.on('open', error => {
   if (error) {
     return console.error(error);
   }
-  let isOfferer;
-  let members = [];
   room = drone.subscribe(roomName);
   room.on('open', error => {
     if (error) {
@@ -47,24 +49,13 @@ drone.on('open', error => {
   });
   // We're connected to the room and received an array of 'members'
   // connected to the room (including us). Signaling server is ready.
-  room.on('members', m => {
-    members = m;
-    // If we are the second user to connect to the room we will be creating the offer
-    isOfferer = members.length === 2;
-    startWebRTC(isOfferer);
-  });
-
-  room.on('member_join', member => {
-    members.push(member);
-  });
-
-  room.on('member_leave', member => {
-    const index = members.findIndex(m => m.id === member.id);
-    members.splice(index, 1);
-    // Quickfix: If the parter leaves we need to refresh the page to reset everything
-    if (members.length === 1) {
-      location.reload();
+  room.on('members', members => {
+    if (members.length >= 3) {
+      return alert('The room is full');
     }
+    // If we are the second user to connect to the room we will be creating the offer
+    const isOfferer = members.length === 2;
+    startWebRTC(isOfferer);
   });
 });
 
@@ -104,6 +95,10 @@ function startWebRTC(isOfferer) {
     }
   }
 
+  startListentingToSignals();
+}
+
+function startListentingToSignals() {
   // Listen to signaling data from Scaledrone
   room.on('data', (message, client) => {
     // Message was sent by us
