@@ -10,7 +10,7 @@ function randomEmoji() {
 }
 
 const emoji = randomEmoji();
-const name = Math.round(Math.random() * 100) + ''; //prompt("What's your name?");
+const name = prompt("What's your name?");
 
 // Generate random chat hash if needed
 if (!location.hash) {
